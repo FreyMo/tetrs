@@ -1,6 +1,4 @@
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Sender;
-use std::sync::Arc;
 
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 
@@ -18,30 +16,31 @@ pub enum Input {
 
 pub struct InputLoop {
     sender: Sender<Input>,
-    should_stop: Arc<AtomicBool>,
+    should_stop: bool,
 }
 
 impl InputLoop {
-    pub fn new(sender: Sender<Input>, should_stop: Arc<AtomicBool>) -> Self {
+    pub fn new(sender: Sender<Input>) -> Self {
         Self {
             sender,
-            should_stop,
+            should_stop: false,
         }
     }
 
-    pub fn run(&self) {
-        while !(*self.should_stop).load(Ordering::Relaxed) {
+    pub fn run(&mut self) {
+        while !self.should_stop {
             self.provide_inputs();
         }
     }
 
-    fn provide_inputs(&self) {
+    fn provide_inputs(&mut self) {
         let input = match crossterm::event::read() {
             Ok(e) => self.read_input(&e),
             Err(_) => None,
         };
 
         if let Some(i) = input {
+            self.stop_if_necessary(&i);
             self.sender.send(i).ok();
         }
     }
@@ -69,5 +68,14 @@ impl InputLoop {
             },
             _ => None,
         }
+    }
+
+    fn stop_if_necessary(&mut self, input: &Input) {
+        match input {
+            Input::Quit | Input::Restart => {
+                self.should_stop = true;
+            }
+            _ => {}
+        };
     }
 }

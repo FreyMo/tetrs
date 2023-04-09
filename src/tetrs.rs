@@ -1,11 +1,7 @@
 use std::{
     io::stdout,
     marker::PhantomData,
-    sync::{
-        atomic::AtomicBool,
-        mpsc::{self, Receiver, Sender},
-        Arc,
-    },
+    sync::mpsc::{self, Receiver, Sender},
     thread,
 };
 
@@ -42,16 +38,13 @@ impl Tetrs {
     pub fn run(&self) -> End {
         execute!(stdout(), Clear(crossterm::terminal::ClearType::All)).unwrap();
 
-        let should_stop = Arc::new(AtomicBool::new(false));
-        let should_stop_game = should_stop.clone();
-
         let (sender, receiver): (Sender<Input>, Receiver<Input>) = mpsc::channel();
 
-        let input_thread = thread::spawn(move || {
-            InputLoop::new(sender, should_stop).run();
+        let input_thread = thread::spawn(|| {
+            InputLoop::new(sender).run();
         });
 
-        let end = GameLoop::new(Game::new(receiver, should_stop_game), Ui::default()).run();
+        let end = GameLoop::new(Game::new(receiver), Ui::default()).run();
 
         input_thread.join().unwrap();
 

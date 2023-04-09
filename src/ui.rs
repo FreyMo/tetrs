@@ -144,7 +144,7 @@ fn block(title: &str) -> Block {
 
 fn draw_field<'a>(state: &GameState, rows: &'a mut [Line; FIELD_HEIGHT]) -> Vec<Spans<'a>> {
     if let Some(preview) = &state.preview {
-        draw_tetromino(preview, rows, Cell::preview(&preview));
+        draw_tetromino(preview, rows, Cell::preview(preview));
     }
     draw_tetromino(&state.current, rows, Cell::normal(&state.current));
     draw_solidified(&state.field, rows);
@@ -191,7 +191,7 @@ fn draw_help() -> Vec<Row<'static>> {
     ]
 }
 
-fn draw_level<'a>(level: &Level) -> Vec<Row<'static>> {
+fn draw_level(level: &Level) -> Vec<Row<'static>> {
     vec![
         Row::new(vec![String::from(""), String::from("")]),
         Row::new(vec![" Level:".into(), format!("{}", level.current)]),

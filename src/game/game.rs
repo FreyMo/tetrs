@@ -1,8 +1,4 @@
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    mpsc::Receiver,
-    Arc,
-};
+use std::sync::mpsc::Receiver;
 
 use crate::input::Input;
 
@@ -32,15 +28,13 @@ impl From<Input> for Option<End> {
 pub struct Game {
     inputs: Receiver<Input>,
     mode: GameMode,
-    should_stop: Arc<AtomicBool>,
 }
 
 impl Game {
-    pub const fn new(inputs: Receiver<Input>, should_stop: Arc<AtomicBool>) -> Self {
+    pub const fn new(inputs: Receiver<Input>) -> Self {
         Self {
             inputs,
             mode: GameMode::Menu(Menu {}),
-            should_stop,
         }
     }
 
@@ -69,14 +63,6 @@ impl Game {
     }
 
     fn check_for_end(&self, inputs: &[Input]) -> Option<End> {
-        let result: Option<End> = inputs.iter().find_map(|&x| x.into());
-
-        match result {
-            Some(end) => {
-                self.should_stop.store(true, Ordering::Relaxed);
-                Some(end)
-            }
-            None => None,
-        }
+        inputs.iter().find_map(|&x| x.into())
     }
 }
