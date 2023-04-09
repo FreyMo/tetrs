@@ -58,15 +58,18 @@ impl InputLoop {
     }
 
     pub fn run(&self) {
-        loop {
-            match self.provide_inputs() {
-                Loop::Continue => continue,
-                Loop::Break => break,
-            };
+        while let Loop::Continue = self.read_inputs() {
+            #[cfg(target_os = "windows")]
+            {
+                // Debounce for Windows since there are multiple Input events if read in a tight loop
+                use std::{thread, time::Duration};
+
+                thread::sleep(Duration::from_millis(20));
+            }
         }
     }
 
-    fn provide_inputs(&self) -> Loop {
+    fn read_inputs(&self) -> Loop {
         let input = match crossterm::event::read() {
             Ok(e) => Input::try_from(e).ok(),
             Err(_) => None,
@@ -74,15 +77,14 @@ impl InputLoop {
 
         if let Some(i) = input {
             self.sender.send(i).ok();
-            return self.determine_result(&i);
         }
 
-        Loop::Continue
+        self.determine_result(&input)
     }
 
-    fn determine_result(&self, input: &Input) -> Loop {
+    fn determine_result(&self, input: &Option<Input>) -> Loop {
         match input {
-            Input::Quit | Input::Restart => Loop::Break,
+            Some(Input::Quit) | Some(Input::Restart) => Loop::Break,
             _ => Loop::Continue,
         }
     }

@@ -5,7 +5,7 @@ use std::{
 
 use crate::ui::Ui;
 
-use super::game::{End, Game, TickResult};
+use super::logic::{End, Logic, TickResult};
 
 const UPDATES_PER_SECOND: u32 = 60;
 
@@ -14,12 +14,12 @@ pub struct GameLoop {
     previous: Instant,
     current: Instant,
     accumulated: Duration,
-    game: Game,
+    game: Logic,
     ui: Ui,
 }
 
 impl GameLoop {
-    pub fn new(game: Game, ui: Ui) -> Self {
+    pub fn new(game: Logic, ui: Ui) -> Self {
         let instant = Instant::now();
 
         GameLoop {
@@ -68,12 +68,16 @@ impl GameLoop {
         None
     }
 
+    #[cfg(not(target_os = "windows"))]
     fn idle(&self, difference: Duration) {
-        // Only for now, should be improved. However, this already reduces CPU load by a lot
-        if difference > Duration::from_millis(1) {
-            thread::sleep(Duration::from_millis(1));
+        if difference > Duration::from_micros(500) {
+            thread::sleep(difference - Duration::from_micros(100));
         }
+    }
 
-        // Add conditional sleep for windows
+    #[cfg(target_os = "windows")]
+    fn idle(&self, difference: Duration) {
+        // Do nothing because Windows timers are very inaccurate.
+        // This may increase CPU load but is much more feasible.
     }
 }

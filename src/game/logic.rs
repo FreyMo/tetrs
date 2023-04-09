@@ -25,12 +25,12 @@ impl From<Input> for Option<End> {
     }
 }
 
-pub struct Game {
+pub struct Logic {
     inputs: Receiver<Input>,
     mode: GameMode,
 }
 
-impl Game {
+impl Logic {
     pub const fn new(inputs: Receiver<Input>) -> Self {
         Self {
             inputs,

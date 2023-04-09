@@ -14,8 +14,8 @@ use crossterm::{
 
 use crate::{
     game::{
-        game::{End, Game},
         game_loop::GameLoop,
+        logic::{End, Logic},
     },
     input::{Input, InputLoop},
     ui::Ui,
@@ -44,7 +44,7 @@ impl Tetrs {
             InputLoop::new(sender).run();
         });
 
-        let end = GameLoop::new(Game::new(receiver), Ui::default()).run();
+        let end = GameLoop::new(Logic::new(receiver), Ui::default()).run();
 
         input_thread.join().unwrap();
 

@@ -1,4 +1,4 @@
-use game::game::End;
+use game::logic::End;
 use tetrs::Tetrs;
 
 mod game;
