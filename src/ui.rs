@@ -86,6 +86,7 @@ pub fn fixed_intersection(left: &Rect, other: &Rect) -> Rect {
     let y1 = max(left.y, other.y);
     let x2 = min(left.x + left.width, other.x + other.width);
     let y2 = min(left.y + left.height, other.y + other.height);
+
     Rect {
         x: x1,
         y: y1,
@@ -106,22 +107,10 @@ fn draw_tetrs(state: &GameState, frame: &mut tui::Frame<CrosstermBackend<Stdout>
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
         .split(right_area);
 
-    let stats = Block::default()
-        .title("stats")
-        .borders(Borders::ALL)
-        .title_alignment(Alignment::Center);
-    let game = Block::default()
-        .title("tetrs")
-        .borders(Borders::ALL)
-        .title_alignment(Alignment::Center);
-    let next = Block::default()
-        .title("next")
-        .borders(Borders::ALL)
-        .title_alignment(Alignment::Center);
-    let help = Block::default()
-        .title("help")
-        .borders(Borders::ALL)
-        .title_alignment(Alignment::Center);
+    let stats = block("stats");
+    let game = block("tetrs");
+    let next = block("next");
+    let help = block("help");
 
     let line_vec: Vec<Line> = std::iter::repeat(Line::default())
         .take(FIELD_HEIGHT)
@@ -146,31 +135,27 @@ fn draw_tetrs(state: &GameState, frame: &mut tui::Frame<CrosstermBackend<Stdout>
     frame.render_widget(help_table, chunks[1]);
 }
 
+fn block(title: &str) -> Block {
+    Block::default()
+        .title(title)
+        .borders(Borders::ALL)
+        .title_alignment(Alignment::Center)
+}
+
 fn draw_field<'a>(state: &GameState, rows: &'a mut [Line; FIELD_HEIGHT]) -> Vec<Spans<'a>> {
     if let Some(preview) = &state.preview {
-        draw_tetromino(preview, rows, true);
+        draw_tetromino(preview, rows, Cell::preview(&preview));
     }
-    draw_tetromino(&state.current, rows, false);
+    draw_tetromino(&state.current, rows, Cell::normal(&state.current));
     draw_solidified(&state.field, rows);
 
     rows.iter().map(|x| x.to_spans()).collect()
 }
 
-fn draw_tetromino(tetromino: &Tetromino, rows: &mut [Line], preview: bool) {
+fn draw_tetromino(tetromino: &Tetromino, rows: &mut [Line], cell: Cell) {
     for elem in tetromino.blocks.iter() {
-        let cell = match preview {
-            true => Cell {
-                str: "◤◢",
-                style: Style::default().fg(tetromino.color),
-            },
-            false => Cell {
-                str: "  ",
-                style: Style::default().bg(tetromino.color),
-            },
-        };
-
         rows[(tetromino.coords.y + elem.vec.y) as usize].cells
-            [(tetromino.coords.x + elem.vec.x) as usize] = cell;
+            [(tetromino.coords.x + elem.vec.x) as usize] = cell.clone();
     }
 }
 
@@ -188,7 +173,7 @@ fn draw_solidified(field: &Field, rows: &mut [Line; FIELD_HEIGHT]) {
 }
 
 fn draw_next<'a>(next: &Tetromino, rows: &'a mut [Line; 6]) -> Vec<Spans<'a>> {
-    draw_tetromino(next, rows, false);
+    draw_tetromino(next, rows, Cell::normal(next));
 
     rows.iter().map(|x| x.to_spans()).collect()
 }
@@ -217,7 +202,7 @@ fn draw_level<'a>(level: &Level) -> Vec<Row<'static>> {
 
 #[derive(Clone, Debug)]
 struct Line {
-    pub cells: [Cell<'static>; FIELD_WIDTH],
+    pub cells: [Cell; FIELD_WIDTH],
 }
 
 impl Default for Line {
@@ -244,12 +229,12 @@ impl Line {
 }
 
 #[derive(Debug, Clone)]
-struct Cell<'a> {
-    pub str: &'a str,
+struct Cell {
+    pub str: &'static str,
     pub style: Style,
 }
 
-impl Default for Cell<'static> {
+impl Default for Cell {
     fn default() -> Self {
         Self {
             str: "  ",
@@ -258,9 +243,23 @@ impl Default for Cell<'static> {
     }
 }
 
-impl<'a> Cell<'a> {
-    fn to_span(&self) -> Span<'a> {
+impl Cell {
+    fn to_span(&self) -> Span {
         Span::styled(self.str, self.style)
+    }
+
+    fn normal(tetromino: &Tetromino) -> Self {
+        Self {
+            str: "  ",
+            style: Style::default().bg(tetromino.color),
+        }
+    }
+
+    fn preview(tetromino: &Tetromino) -> Self {
+        Self {
+            str: "◤◢",
+            style: Style::default().fg(tetromino.color),
+        }
     }
 }
 
@@ -286,10 +285,7 @@ fn draw_menu(frame: &mut tui::Frame<CrosstermBackend<Stdout>>) {
     let rect = horizontal_chunks[1];
     let lines = get_menu_lines(&rect);
 
-    let block = Block::default()
-        .title("tetrs")
-        .borders(Borders::ALL)
-        .title_alignment(tui::layout::Alignment::Center);
+    let block = block("tetrs");
 
     let paragraph = Paragraph::new(lines)
         .block(block)
