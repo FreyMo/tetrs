@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use crossterm::event::{Event, KeyCode, KeyModifiers};
+use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Input {
@@ -28,25 +28,30 @@ impl TryFrom<Event> for Input {
 
     fn try_from(value: Event) -> Result<Self, Self::Error> {
         match value {
-            Event::Key(e) => match e.code {
-                KeyCode::Up => Ok(Input::Rotate),
-                KeyCode::Right => Ok(Input::Right),
-                KeyCode::Left => Ok(Input::Left),
-                KeyCode::Down => Ok(Input::Down),
-                KeyCode::Char('d') => Ok(Input::Drop),
-                KeyCode::Char(' ') => Ok(Input::Drop),
-                KeyCode::Char('q') => Ok(Input::Quit),
-                KeyCode::Char('r') => Ok(Input::Restart),
-                KeyCode::Char('c') => match e.modifiers {
-                    KeyModifiers::CONTROL => Ok(Input::Quit),
+            Event::Key(e) => {
+                if e.kind == KeyEventKind::Release {
+                    return Err(());
+                }
+                match e.code {
+                    KeyCode::Up => Ok(Input::Rotate),
+                    KeyCode::Right => Ok(Input::Right),
+                    KeyCode::Left => Ok(Input::Left),
+                    KeyCode::Down => Ok(Input::Down),
+                    KeyCode::Char('d') => Ok(Input::Drop),
+                    KeyCode::Char(' ') => Ok(Input::Drop),
+                    KeyCode::Char('q') => Ok(Input::Quit),
+                    KeyCode::Char('r') => Ok(Input::Restart),
+                    KeyCode::Char('c') => match e.modifiers {
+                        KeyModifiers::CONTROL => Ok(Input::Quit),
+                        _ => Err(()),
+                    },
+                    KeyCode::Char(a) => match a {
+                        '0'..='9' => Ok(Input::Number(a.to_digit(10).expect("Should not fail"))),
+                        _ => Err(()),
+                    },
                     _ => Err(()),
-                },
-                KeyCode::Char(a) => match a {
-                    '0'..='9' => Ok(Input::Number(a.to_digit(10).expect("Should not fail"))),
-                    _ => Err(()),
-                },
-                _ => Err(()),
-            },
+                }
+            }
             _ => Err(()),
         }
     }
@@ -58,15 +63,7 @@ impl InputLoop {
     }
 
     pub fn run(&self) {
-        while let Loop::Continue = self.read_inputs() {
-            #[cfg(target_os = "windows")]
-            {
-                // Debounce for Windows since there are multiple Input events if read in a tight loop
-                use std::{thread, time::Duration};
-
-                thread::sleep(Duration::from_millis(20));
-            }
-        }
+        while let Loop::Continue = self.read_inputs() {}
     }
 
     fn read_inputs(&self) -> Loop {

@@ -76,8 +76,8 @@ impl GameLoop {
     }
 
     #[cfg(target_os = "windows")]
-    fn idle(&self, difference: Duration) {
+    fn idle(&self, _: Duration) {
         // Do nothing because Windows timers are very inaccurate.
-        // This may increase CPU load but is much more feasible.
+        // This may increase CPU load but does stabilize frame times.
     }
 }
