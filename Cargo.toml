@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/FreyMo/tetrs"
 repository = "https://github.com/FreyMo/tetrs"
 keywords = ["cli", "game", "tetris"]
-categories = ["Games", "Command-line interface"]
+categories = ["games", "command-line-interface"]
 
 [dependencies]
 crossterm = "0.26.1"

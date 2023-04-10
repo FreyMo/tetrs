@@ -6,6 +6,14 @@ Yes, I rewrote it in Rust. Yet another command line tetris. Inspired by samtay's
 
 ## Install
 
+### Cargo
+
+<https://crates.io/crates/tetrs/>
+
+```shell
+cargo install tetrs
+```
+
 ### macOS
 
 ```shell
@@ -19,4 +27,8 @@ Go to [Releases](https://github.com/FreyMo/tetrs/releases)
 
 ## Build from sources
 
-Requires Cargo 1.69 or higher. Simply run `cargo run`.
+Requires Cargo 1.69 or higher.
+
+```shell
+cargo run
+```
