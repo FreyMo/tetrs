@@ -4,6 +4,15 @@ Yes, I rewrote it in Rust. Yet another command line tetris. Inspired by samtay's
 
 !["gif"](./docs/tetrs.gif)
 
+## Install
+
+### macOS
+
+```shell
+brew tap freymo/tetrs
+brew install tetrs
+```
+
 ## Download Binary
 
 Go to [Releases](https://github.com/FreyMo/tetrs/releases)
