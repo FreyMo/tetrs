@@ -99,7 +99,7 @@ jobs:
         run: |
           #strip target/${{ matrix.target }}/release/tetrs
           cd target/${{ matrix.target }}/release          
-          tar czvf ../../../tetrs-${{ matrix.target }}.tar.gz tetrs
+          tar czvf ../../../tetrs-${{ matrix.target }}.tar.gz tetrs.exe
           cd -
 
       - name: Publish
