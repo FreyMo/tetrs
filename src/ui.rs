@@ -1,5 +1,7 @@
 use std::{
     cmp::{max, min},
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
     io::{stdout, Stdout},
 };
 
@@ -20,6 +22,8 @@ use crate::game::{
 
 pub struct Ui {
     terminal: Terminal<CrosstermBackend<Stdout>>,
+    previous_size: Rect,
+    previous_hash: u64,
 }
 
 impl Default for Ui {
@@ -27,7 +31,11 @@ impl Default for Ui {
         let backend = CrosstermBackend::new(stdout());
         let terminal = Terminal::new(backend).unwrap();
 
-        Self { terminal }
+        Self {
+            terminal,
+            previous_size: Rect::default(),
+            previous_hash: u64::MAX,
+        }
     }
 }
 
@@ -54,7 +62,29 @@ fn right_area(offset: &Rect) -> Rect {
 
 impl Ui {
     pub fn draw(&mut self, mode: &GameMode) {
-        self.terminal.draw(|frame| draw_frame(mode, frame)).unwrap();
+        if self.should_render(mode) {
+            let frame = self.terminal.draw(|frame| draw_frame(mode, frame)).unwrap();
+            let mut hasher = DefaultHasher::new();
+            mode.hash(&mut hasher);
+
+            self.previous_size = frame.area;
+            self.previous_hash = hasher.finish();
+        }
+    }
+
+    fn should_render(&self, mode: &GameMode) -> bool {
+        let size_changed = self.terminal.size().unwrap() != self.previous_size;
+
+        match mode {
+            GameMode::Menu(_) => size_changed,
+            _ => {
+                let mut hasher = DefaultHasher::new();
+                mode.hash(&mut hasher);
+                let hash = hasher.finish();
+
+                self.previous_hash != hash || size_changed
+            }
+        }
     }
 }
 
@@ -81,7 +111,7 @@ fn get_centered_rect(size: &Rect) -> Rect {
     }
 }
 
-pub fn fixed_intersection(left: &Rect, other: &Rect) -> Rect {
+fn fixed_intersection(left: &Rect, other: &Rect) -> Rect {
     let x1 = max(left.x, other.x);
     let y1 = max(left.y, other.y);
     let x2 = min(left.x + left.width, other.x + other.width);

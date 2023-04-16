@@ -19,7 +19,7 @@ pub const ROTATE_CW: Matrix2D = Matrix2D {
     y1: 0,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Vector2D {
     pub x: i32,
     pub y: i32,

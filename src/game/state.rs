@@ -1,10 +1,17 @@
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    hash::{Hash, Hasher},
+};
 
 use tui::style::Color;
 
 use super::{
     level::Level,
-    modes::{finished::Finished, menu::Menu, running::Running},
+    modes::{
+        finished::{self, Finished},
+        menu::Menu,
+        running::Running,
+    },
     tetromino::Tetromino,
 };
 
@@ -13,6 +20,16 @@ pub enum GameMode {
     Menu(Menu),
     Running(Box<Running>),
     Finished(Box<Finished>),
+}
+
+impl Hash for GameMode {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            GameMode::Menu(_) => u64::MAX.hash(state),
+            GameMode::Running(running) => running.state.current.hash(state),
+            GameMode::Finished(finished) => finished.state.current.hash(state),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

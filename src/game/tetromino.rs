@@ -1,22 +1,23 @@
 use rand::Rng;
+use std::hash::{Hash, Hasher};
 use tui::style::Color;
 
 use super::math::{Matrix2D, Vector2D, ROTATE_CCW, ROTATE_CW};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Rotation {
     None,
     Two(Two),
     Four(Four),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Two {
     Right,
     Up,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub enum Four {
     Right,
     Up,
@@ -24,7 +25,7 @@ pub enum Four {
     Down,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Block {
     pub vec: Vector2D,
 }
@@ -44,6 +45,14 @@ pub struct Tetromino {
     pub origin: Block,
     pub coords: Vector2D,
     pub color: Color,
+}
+
+impl Hash for Tetromino {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.blocks.hash(state);
+        self.rotation.hash(state);
+        self.coords.hash(state);
+    }
 }
 
 impl Tetromino {

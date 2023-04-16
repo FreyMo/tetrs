@@ -29,8 +29,6 @@ impl Running {
             }));
         }
 
-        self.state.preview = self.determine_preview();
-
         let solidified = self.handle_inputs(inputs);
         let solidified = self.advance_game(solidified);
 
@@ -41,6 +39,8 @@ impl Running {
             swap(&mut self.state.current, &mut self.state.next);
             self.state.next = Tetromino::next();
         }
+
+        self.state.preview = self.determine_preview();
 
         None
     }
