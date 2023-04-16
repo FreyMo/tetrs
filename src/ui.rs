@@ -75,6 +75,7 @@ impl Ui {
     fn should_render(&self, mode: &GameMode) -> bool {
         let size_changed = self.terminal.size().unwrap() != self.previous_size;
 
+        // TODO: this will not work when changing from running to finished, as the hash does not change
         match mode {
             GameMode::Menu(_) => size_changed,
             _ => {
