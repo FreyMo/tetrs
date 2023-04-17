@@ -1,6 +1,6 @@
 # tetrs
 
-Yes, I rewrote it in Rust. Yet another command line tetris. Inspired by samtay's [Haskell version](https://github.com/samtay/tetris).
+Yes, I rewrote it in Rust. Yet another command line tetromino game. Inspired by samtay's [Haskell version](https://github.com/samtay/tetris).
 
 !["gif"](./docs/tetrs.gif)
 

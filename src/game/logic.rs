@@ -2,7 +2,7 @@ use std::sync::mpsc::Receiver;
 
 use crate::input::Input;
 
-use super::{modes::menu::Menu, state::GameMode};
+use super::{phases::menu::Menu, state::Phase};
 
 #[derive(PartialEq)]
 pub enum End {
@@ -11,7 +11,7 @@ pub enum End {
 }
 
 pub enum TickResult {
-    GameMode(GameMode),
+    Phase(Phase),
     End(End),
 }
 
@@ -27,14 +27,14 @@ impl From<Input> for Option<End> {
 
 pub struct Logic {
     inputs: Receiver<Input>,
-    mode: GameMode,
+    phase: Phase,
 }
 
 impl Logic {
     pub const fn new(inputs: Receiver<Input>) -> Self {
         Self {
             inputs,
-            mode: GameMode::Menu(Menu {}),
+            phase: Phase::Menu(Menu {}),
         }
     }
 
@@ -45,21 +45,21 @@ impl Logic {
             return TickResult::End(end);
         }
 
-        match &mut self.mode {
-            GameMode::Menu(menu) => {
+        match &mut self.phase {
+            Phase::Menu(menu) => {
                 if let Some(running) = menu.handle(&inputs) {
-                    self.mode = GameMode::Running(running);
+                    self.phase = Phase::Running(running);
                 }
             }
-            GameMode::Running(running) => {
+            Phase::Running(running) => {
                 if let Some(finished) = running.handle(&inputs) {
-                    self.mode = GameMode::Finished(finished);
+                    self.phase = Phase::Finished(finished);
                 }
             }
-            GameMode::Finished(finished) => finished.handle(),
+            Phase::Finished(finished) => finished.handle(),
         };
 
-        TickResult::GameMode(self.mode.clone())
+        TickResult::Phase(self.phase.clone())
     }
 
     fn check_for_end(&self, inputs: &[Input]) -> Option<End> {

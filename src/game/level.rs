@@ -58,7 +58,7 @@ impl Level {
             ClearedLines::Single => 40 * (self.current + 1),
             ClearedLines::Double => 100 * (self.current + 1),
             ClearedLines::Triple => 300 * (self.current + 1),
-            ClearedLines::Tetris => 1200 * (self.current + 1),
+            ClearedLines::Tetrs => 1200 * (self.current + 1),
         }
     }
 }
@@ -70,7 +70,7 @@ impl From<usize> for ClearedLines {
             1 => ClearedLines::Single,
             2 => ClearedLines::Double,
             3 => ClearedLines::Triple,
-            4 => ClearedLines::Tetris,
+            4 => ClearedLines::Tetrs,
             _ => panic!("This must never happen"),
         }
     }
@@ -83,7 +83,7 @@ impl ClearedLines {
             ClearedLines::Single => 1,
             ClearedLines::Double => 2,
             ClearedLines::Triple => 3,
-            ClearedLines::Tetris => 4,
+            ClearedLines::Tetrs => 4,
         }
     }
 }
@@ -93,5 +93,5 @@ pub enum ClearedLines {
     Single,
     Double,
     Triple,
-    Tetris,
+    Tetrs,
 }

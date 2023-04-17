@@ -16,7 +16,7 @@ use tui::{
 
 use crate::game::{
     level::Level,
-    state::{Field, GameMode, GameState, Square, FIELD_HEIGHT, FIELD_WIDTH},
+    state::{Field, Phase, GameState, Square, FIELD_HEIGHT, FIELD_WIDTH},
     tetromino::Tetromino,
 };
 
@@ -61,26 +61,26 @@ fn right_area(offset: &Rect) -> Rect {
 }
 
 impl Ui {
-    pub fn draw(&mut self, mode: &GameMode) {
-        if self.should_render(mode) {
-            let frame = self.terminal.draw(|frame| draw_frame(mode, frame)).unwrap();
+    pub fn draw(&mut self, phase: &Phase) {
+        if self.should_render(phase) {
+            let frame = self.terminal.draw(|frame| draw_frame(phase, frame)).unwrap();
             let mut hasher = DefaultHasher::new();
-            mode.hash(&mut hasher);
+            phase.hash(&mut hasher);
 
             self.previous_size = frame.area;
             self.previous_hash = hasher.finish();
         }
     }
 
-    fn should_render(&self, mode: &GameMode) -> bool {
+    fn should_render(&self, phase: &Phase) -> bool {
         let size_changed = self.terminal.size().unwrap() != self.previous_size;
 
         // TODO: this will not work when changing from running to finished, as the hash does not change
-        match mode {
-            GameMode::Menu(_) => size_changed,
+        match phase {
+            Phase::Menu(_) => size_changed,
             _ => {
                 let mut hasher = DefaultHasher::new();
-                mode.hash(&mut hasher);
+                phase.hash(&mut hasher);
                 let hash = hasher.finish();
 
                 self.previous_hash != hash || size_changed
@@ -89,11 +89,11 @@ impl Ui {
     }
 }
 
-fn draw_frame(mode: &GameMode, frame: &mut tui::Frame<CrosstermBackend<Stdout>>) {
-    match mode {
-        GameMode::Menu(_) => draw_menu(frame),
-        GameMode::Running(running) => draw_tetrs(&running.state, frame),
-        GameMode::Finished(finished) => draw_tetrs(&finished.state, frame),
+fn draw_frame(phase: &Phase, frame: &mut tui::Frame<CrosstermBackend<Stdout>>) {
+    match phase {
+        Phase::Menu(_) => draw_menu(frame),
+        Phase::Running(running) => draw_tetrs(&running.state, frame),
+        Phase::Finished(finished) => draw_tetrs(&finished.state, frame),
     };
 }
 

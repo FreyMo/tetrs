@@ -7,23 +7,23 @@ use tui::style::Color;
 
 use super::{
     level::Level,
-    modes::{finished::Finished, menu::Menu, running::Running},
+    phases::{finished::Finished, menu::Menu, running::Running},
     tetromino::Tetromino,
 };
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum GameMode {
+pub enum Phase {
     Menu(Menu),
     Running(Box<Running>),
     Finished(Box<Finished>),
 }
 
-impl Hash for GameMode {
+impl Hash for Phase {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self {
-            GameMode::Menu(_) => u64::MAX.hash(state),
-            GameMode::Running(running) => running.state.current.hash(state),
-            GameMode::Finished(finished) => finished.state.current.hash(state),
+            Phase::Menu(_) => u64::MAX.hash(state),
+            Phase::Running(running) => running.state.current.hash(state),
+            Phase::Finished(finished) => finished.state.current.hash(state),
         }
     }
 }

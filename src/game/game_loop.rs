@@ -59,7 +59,7 @@ impl GameLoop {
                 TickResult::End(end) => {
                     return Some(end);
                 }
-                TickResult::GameMode(mode) => self.ui.draw(&mode),
+                TickResult::Phase(phase) => self.ui.draw(&phase),
             };
         } else {
             self.idle(self.tick_duration - self.accumulated);
