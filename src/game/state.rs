@@ -1,32 +1,11 @@
-use std::{
-    collections::VecDeque,
-    hash::{Hash, Hasher},
-};
+use std::collections::VecDeque;
 
 use tui::style::Color;
 
 use super::{
     level::{ClearedLines, Level},
-    phases::{finished::Finished, menu::Menu, running::Running},
     tetromino::Tetromino,
 };
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Phase {
-    Menu(Menu),
-    Running(Box<Running>),
-    Finished(Box<Finished>),
-}
-
-impl Hash for Phase {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            Phase::Menu(_) => u64::MAX.hash(state),
-            Phase::Running(running) => running.state.current.hash(state),
-            Phase::Finished(finished) => finished.state.current.hash(state),
-        }
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Square {
@@ -189,6 +168,22 @@ impl GameState {
         if self.check_collision(&self.current).is_some() {
             self.current = original;
         }
+    }
+
+    pub fn advance_game(&mut self, already_solidified: bool) -> bool {
+        self.ticks += 1;
+
+        match self.ticks > self.level.required_ticks() {
+            true => {
+                self.ticks = 0;
+                already_solidified || self.try_move_down()
+            }
+            false => already_solidified,
+        }
+    }
+
+    pub fn is_finished(&self) -> bool {
+        self.check_collision(&self.current).is_some()
     }
 }
 

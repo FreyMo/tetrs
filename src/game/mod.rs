@@ -5,4 +5,4 @@ pub mod math;
 pub mod state;
 pub mod tetromino;
 
-pub mod phases;
+pub mod phase;

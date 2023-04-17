@@ -14,14 +14,14 @@ pub struct Running {
 
 impl Running {
     pub fn handle(&mut self, inputs: &[Input]) -> Option<Box<Finished>> {
-        if self.is_finished() {
+        if self.state.is_finished() {
             return Some(Box::new(Finished {
                 state: self.state.clone(),
             }));
         }
 
         let solidified = self.handle_inputs(inputs);
-        let solidified = self.advance_game(solidified);
+        let solidified = self.state.advance_game(solidified);
 
         if solidified {
             let cleared_lines = self.state.clear_lines();
@@ -34,10 +34,6 @@ impl Running {
         self.state.preview = self.state.determine_preview();
 
         None
-    }
-
-    fn is_finished(&self) -> bool {
-        self.state.check_collision(&self.state.current).is_some()
     }
 
     fn handle_inputs(&mut self, inputs: &[Input]) -> bool {
@@ -61,18 +57,6 @@ impl Running {
             Input::Down => self.state.move_down(),
             Input::Drop => self.state.drop(),
             _ => false,
-        }
-    }
-
-    fn advance_game(&mut self, already_solidified: bool) -> bool {
-        self.state.ticks += 1;
-
-        match self.state.ticks > self.state.level.required_ticks() {
-            true => {
-                self.state.ticks = 0;
-                already_solidified || self.state.try_move_down()
-            }
-            false => already_solidified,
         }
     }
 }

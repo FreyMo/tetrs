@@ -2,7 +2,7 @@ use std::sync::mpsc::Receiver;
 
 use crate::input::Input;
 
-use super::{phases::menu::Menu, state::Phase};
+use super::{phase::menu::Menu, phase::Phase};
 
 #[derive(PartialEq)]
 pub enum End {

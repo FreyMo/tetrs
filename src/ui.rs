@@ -16,7 +16,8 @@ use tui::{
 
 use crate::game::{
     level::Level,
-    state::{Field, GameState, Phase, Square, FIELD_HEIGHT, FIELD_WIDTH},
+    phase::Phase,
+    state::{Field, GameState, Square, FIELD_HEIGHT, FIELD_WIDTH},
     tetromino::Tetromino,
 };
 
