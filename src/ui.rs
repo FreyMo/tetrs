@@ -155,7 +155,7 @@ fn draw_tetrs(state: &GameState, frame: &mut tui::Frame<CrosstermBackend<Stdout>
     let mut next_lines: [Line; 6] = next_lines_vec.try_into().unwrap();
 
     let game_paragraph = Paragraph::new(draw_field(state, &mut lines)).block(game);
-    let stats_paragraph = Table::new(draw_level(&state.level))
+    let stats_paragraph = Table::new(draw_stats(&state.level))
         .block(stats)
         .widths(&[Constraint::Length(7), Constraint::Length(15)]);
     let next_paragraph = Paragraph::new(draw_next(&state.next, &mut next_lines)).block(next);
@@ -225,7 +225,7 @@ fn draw_help() -> Vec<Row<'static>> {
     ]
 }
 
-fn draw_level(level: &Level) -> Vec<Row<'static>> {
+fn draw_stats(level: &Level) -> Vec<Row<'static>> {
     vec![
         Row::new(vec![String::from(""), String::from("")]),
         Row::new(vec![" Level:".into(), format!("{}", level.current)]),
