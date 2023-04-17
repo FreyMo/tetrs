@@ -43,7 +43,7 @@ const HEIGHT: u16 = FIELD_HEIGHT as u16 + 2;
 const LEVEL_WIDTH: u16 = 17;
 const GAME_WIDTH: u16 = FIELD_WIDTH as u16 * 2 + 2;
 
-fn level_area(offset: &Rect) -> Rect {
+fn left_area(offset: &Rect) -> Rect {
     Rect::new(offset.x, offset.y, LEVEL_WIDTH, HEIGHT)
 }
 
@@ -100,7 +100,7 @@ fn draw_frame(phase: &Phase, frame: &mut tui::Frame<CrosstermBackend<Stdout>>) {
     };
 }
 
-fn get_centered_rect(size: &Rect) -> Rect {
+fn centered(size: &Rect) -> Rect {
     let width = min(size.width, LEVEL_WIDTH + GAME_WIDTH * 2);
     let height = min(size.height, HEIGHT);
 
@@ -115,11 +115,11 @@ fn get_centered_rect(size: &Rect) -> Rect {
     }
 }
 
-fn fixed_intersection(left: &Rect, other: &Rect) -> Rect {
-    let x1 = max(left.x, other.x);
-    let y1 = max(left.y, other.y);
-    let x2 = min(left.x + left.width, other.x + other.width);
-    let y2 = min(left.y + left.height, other.y + other.height);
+fn intersect(first: &Rect, second: &Rect) -> Rect {
+    let x1 = max(first.x, second.x);
+    let y1 = max(first.y, second.y);
+    let x2 = min(first.x + first.width, second.x + second.width);
+    let y2 = min(first.y + first.height, second.y + second.height);
 
     Rect {
         x: x1,
@@ -130,11 +130,11 @@ fn fixed_intersection(left: &Rect, other: &Rect) -> Rect {
 }
 
 fn draw_tetrs(state: &GameState, frame: &mut tui::Frame<CrosstermBackend<Stdout>>) {
-    let rect = get_centered_rect(&frame.size());
+    let rect = centered(&frame.size());
 
-    let level_area = fixed_intersection(&level_area(&rect), &rect);
-    let game_area = fixed_intersection(&game_area(&rect), &rect);
-    let right_area = fixed_intersection(&right_area(&rect), &rect);
+    let left_area = intersect(&left_area(&rect), &rect);
+    let game_area = intersect(&game_area(&rect), &rect);
+    let right_area = intersect(&right_area(&rect), &rect);
 
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -163,7 +163,7 @@ fn draw_tetrs(state: &GameState, frame: &mut tui::Frame<CrosstermBackend<Stdout>
         .block(help)
         .widths(&[Constraint::Length(8), Constraint::Length(15)]);
 
-    frame.render_widget(stats_paragraph, level_area);
+    frame.render_widget(stats_paragraph, left_area);
     frame.render_widget(game_paragraph, game_area);
     frame.render_widget(next_paragraph, chunks[0]);
     frame.render_widget(help_table, chunks[1]);
