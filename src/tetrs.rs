@@ -14,7 +14,7 @@ use crossterm::{
 
 use crate::{
     game::{
-        game::GameLoop,
+        cycle::GameLoop,
         logic::{End, Logic},
     },
     input::{Input, InputLoop},

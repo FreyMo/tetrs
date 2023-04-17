@@ -1,4 +1,4 @@
-pub mod game;
+pub mod cycle;
 pub mod level;
 pub mod logic;
 pub mod math;
