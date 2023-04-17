@@ -7,11 +7,7 @@ use tui::style::Color;
 
 use super::{
     level::Level,
-    modes::{
-        finished::{self, Finished},
-        menu::Menu,
-        running::Running,
-    },
+    modes::{finished::Finished, menu::Menu, running::Running},
     tetromino::Tetromino,
 };
 
