@@ -1,33 +1,30 @@
-use std::{
-    thread,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use crate::ui::Ui;
 
 use super::logic::{End, Logic, TickResult};
 
-const UPDATES_PER_SECOND: u32 = 60;
+const TICKS_PER_SECOND: f64 = 60f64;
 
 pub struct GameLoop {
     tick_duration: Duration,
     previous: Instant,
     current: Instant,
     accumulated: Duration,
-    game: Logic,
+    logic: Logic,
     ui: Ui,
 }
 
 impl GameLoop {
-    pub fn new(game: Logic, ui: Ui) -> Self {
+    pub fn new(logic: Logic, ui: Ui) -> Self {
         let instant = Instant::now();
 
         GameLoop {
-            tick_duration: Duration::from_secs_f64(1.0 / UPDATES_PER_SECOND as f64),
+            tick_duration: Duration::from_secs_f64(1.0 / TICKS_PER_SECOND),
             previous: instant,
             current: instant,
             accumulated: Duration::default(),
-            game,
+            logic,
             ui,
         }
     }
@@ -55,7 +52,7 @@ impl GameLoop {
         if self.accumulated >= self.tick_duration {
             self.accumulated -= self.tick_duration;
 
-            match self.game.update() {
+            match self.logic.update() {
                 TickResult::End(end) => {
                     return Some(end);
                 }
@@ -71,7 +68,7 @@ impl GameLoop {
     #[cfg(not(target_os = "windows"))]
     fn idle(&self, difference: Duration) {
         if difference > Duration::from_micros(500) {
-            thread::sleep(difference - Duration::from_micros(100));
+            std::thread::sleep(difference - Duration::from_micros(100));
         }
     }
 

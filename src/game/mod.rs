@@ -1,4 +1,4 @@
-pub mod game_loop;
+pub mod game;
 pub mod level;
 pub mod logic;
 pub mod math;

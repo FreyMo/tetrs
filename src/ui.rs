@@ -16,7 +16,7 @@ use tui::{
 
 use crate::game::{
     level::Level,
-    state::{Field, Phase, GameState, Square, FIELD_HEIGHT, FIELD_WIDTH},
+    state::{Field, GameState, Phase, Square, FIELD_HEIGHT, FIELD_WIDTH},
     tetromino::Tetromino,
 };
 
@@ -63,7 +63,10 @@ fn right_area(offset: &Rect) -> Rect {
 impl Ui {
     pub fn draw(&mut self, phase: &Phase) {
         if self.should_render(phase) {
-            let frame = self.terminal.draw(|frame| draw_frame(phase, frame)).unwrap();
+            let frame = self
+                .terminal
+                .draw(|frame| draw_frame(phase, frame))
+                .unwrap();
             let mut hasher = DefaultHasher::new();
             phase.hash(&mut hasher);
 
